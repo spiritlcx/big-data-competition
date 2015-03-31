@@ -13,6 +13,7 @@ item <- read.csv("tianchi_mobile_recommend_train_item.csv")
 #step 1: understand the data
 
 #important statistics
+#8.5% items between 18:00-23:00
 
 #14% items which has view behavior will be bought in the following day
 #18% items which has collect behavior will be bought in the following day
@@ -29,12 +30,14 @@ item <- read.csv("tianchi_mobile_recommend_train_item.csv")
 #0.4% items which has behavior will be bought in the 25th day
 
 #above statistic is obtained from the code below
-day=31
-for(i in 0:day-2){
-    dayone <- user[user$time %in%levels(user$time)[(i*24+1):((i+1)*24)],]
-#    dayone <-dayone[dayone$behavior==3,]
+day=5
+
+for(i in 0:(day-2)){
+    dayone <- user[user$time %in%levels(user$time)[(i*24+17):((i+1)*24)],]
+    dayone <-dayone[dayone$behavior==1,]
     lastday <- user[user$time %in%levels(user$time)[((i+1)*24+1):((i+2)*24)],]
-    lastday <-lastday[lastday$behavior_type==4,]
+    lastday <-lastday[lastday$behavior_type==2,]
+    print(i)
     print(length(intersect(paste(dayone$user_id, dayone$item_id), paste(lastday$user_id,lastday$item_id)))/length(paste(lastday$user_id,lastday$item_id)))
 }
 
@@ -54,8 +57,13 @@ end = 10
 #behaviour in a week before Friday
 userweekone <- user[user$time %in% levels(user$time)[(start * 24+1): (end * 24)],]
 userweekone <- arrange(userweekone, user_id, time)
-userweekonebefore <- user[user$time %in% levels(user$time)[(start * 24+1): (end * 24-7)],]
-userweekoneafter <- user[user$time %in% levels(user$time)[(end * 24-7): (end * 24)],]
+
+userweekonebefore <- user[user$time %in% levels(user$time)[(start * 24+1): ((end-3) * 24)],]
+userweekonewen <- user[user$time %in% levels(user$time)[((end-3) * 24 + 1): ((end-2) * 24)],]
+userweekonethu <- user[user$time %in% levels(user$time)[((end-2) * 24 + 1): ((end-1) * 24)],]
+userweekonefria <- user[user$time %in% levels(user$time)[((end-1) * 24 + 1): (end * 24 -7)],]
+userweekonefrib <- user[user$time %in% levels(user$time)[(end * 24-7): (end * 24)],]
+
 useronefriday <- user[user$time %in% levels(user$time)[(end * 24+1): ((end+1) * 24)],]
 useronefriday <- useronefriday[useronefriday$behavior_type==4,]
 
@@ -160,17 +168,34 @@ if(!exists('useronefridaypredict')){
     useronefridaypredict[paste(useronefridaypredict$user_id,useronefridaypredict$item_id) %in% paste(useronefriday$user_id, useronefriday$item_id),'label']=1
     useronefridaypredict <- arrange(useronefridaypredict,user_id,item_id)
 
+#    userweekonebefore,userweekonewen,userweekonethu,userweekonefria,userweekonefrib
 
     a <- feature.extractor(userweekonebefore, 1)
     b <- feature.extractor(userweekonebefore, 2)
     c <- feature.extractor(userweekonebefore, 3)
     d <- feature.extractor(userweekonebefore, 4)
     
-    aa <- feature.extractor(userweekoneafter, 1)
-    ba <- feature.extractor(userweekoneafter, 2)
-    ca <- feature.extractor(userweekoneafter, 3)
-    da <- feature.extractor(userweekoneafter, 4)
+    aa <- feature.extractor(userweekonewen, 1)
+    ba <- feature.extractor(userweekonewen, 2)
+    ca <- feature.extractor(userweekonewen, 3)
+    da <- feature.extractor(userweekonewen, 4)
+
+    ab <- feature.extractor(userweekonethu, 1)
+    bb <- feature.extractor(userweekonethu, 2)
+    cb <- feature.extractor(userweekonethu, 3)
+    db <- feature.extractor(userweekonethu, 4)
     
+    ac <- feature.extractor(userweekonefria, 1)
+    bc <- feature.extractor(userweekonefria, 2)
+    cc <- feature.extractor(userweekonefria, 3)
+    dc <- feature.extractor(userweekonefria, 4)
+    
+    ae <- feature.extractor(userweekonefrib, 1)
+    be <- feature.extractor(userweekonefrib, 2)
+    ce <- feature.extractor(userweekonefrib, 3)
+    de <- feature.extractor(userweekonefrib, 4)
+
+
 #    e <- feature.extractor_geohash(userweekone,1,3)
 #    f <- feature.extractor_geohash(userweekone,2,3)
 #    g <- feature.extractor_geohash(userweekone,3,3)
