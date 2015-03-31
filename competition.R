@@ -1,6 +1,7 @@
 library(plyr)
 library(gbm)
 
+#set the directory location
 setwd("C:\\Users\\spirit\\Desktop\\competition")
 user <- read.csv("tianchi_mobile_recommend_train_user.csv")
 item <- read.csv("tianchi_mobile_recommend_train_item.csv")
